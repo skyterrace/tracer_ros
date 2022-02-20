@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="tracer_laser">
 
-
+<!--  为tracer增加一个激光传感器  -->
     <xacro:macro name="cylinder_inertial_matrix" params="m r h">
         <inertial>
             <mass value="${m}" />
@@ -11,50 +11,11 @@
         </inertial>
     </xacro:macro>
 
-    <xacro:property name="support_length" value="0.15" /> 
-    <xacro:property name="support_radius" value="0.01" /> 
-    <xacro:property name="support_x" value="0.0" /> 
-    <xacro:property name="support_y" value="0.0" /> 
-    <xacro:property name="support_z" value="${0.15 / 2 + support_length / 2}" /> 
-    <xacro:property name="support_m" value="0.02" /> 
-
-    <link name="support">
-        <visual>
-            <geometry>
-                <cylinder radius="${support_radius}" length="${support_length}" />
-            </geometry>
-            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
-            <material name="red">
-                <color rgba="0.8 0.2 0.0 0.8" />
-            </material>
-        </visual>
-
-        <collision>
-            <geometry>
-                <cylinder radius="${support_radius}" length="${support_length}" />
-            </geometry>
-            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
-        </collision>
-
-        <xacro:cylinder_inertial_matrix m="${support_m}" r="${support_radius}" h="${support_length}" />
-
-    </link>
-
-    <joint name="support2base_link" type="fixed">
-        <parent link="base_link" />
-        <child link="support" />
-        <origin xyz="${support_x} ${support_y} ${support_z}" />
-    </joint>
-
-    <gazebo reference="support">
-        <material>Gazebo/White</material>
-    </gazebo>
-
     <xacro:property name="laser_length" value="0.05" /> 
-    <xacro:property name="laser_radius" value="0.03" /> 
-    <xacro:property name="laser_x" value="0.0" /> 
+    <xacro:property name="laser_radius" value="0.06" /> 
+    <xacro:property name="laser_x" value="0.21" /> 
     <xacro:property name="laser_y" value="0.0" /> 
-    <xacro:property name="laser_z" value="${support_length / 2 + laser_length / 2}" /> 
+    <xacro:property name="laser_z" value="${0.001 + laser_length / 2}" /> 
 
     <xacro:property name="laser_m" value="0.1" /> 
     
@@ -75,16 +36,14 @@
         <xacro:cylinder_inertial_matrix m="${laser_m}" r="${laser_radius}" h="${laser_length}" />
     </link>
 
-    <joint name="laser2support" type="fixed">
-        <parent link="support" />
+    <joint name="laser2base_link" type="fixed">
+        <parent link="base_link" />
         <child link="laser" />
         <origin xyz="${laser_x} ${laser_y} ${laser_z}" />
     </joint>
     <gazebo reference="laser">
         <material>Gazebo/Black</material>
     </gazebo>
-
-
 
   <gazebo reference="laser">
     <sensor type="ray" name="rplidar">
@@ -115,6 +74,29 @@
         <topicName>/scan</topicName>
         <frameName>laser</frameName>
       </plugin>
+    </sensor>
+  </gazebo>
+
+<!--  Add IMU Sensor  -->
+
+    <gazebo reference="base_link">
+    <gravity>true</gravity>
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>__default_topic__</topic>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>imu</topicName>
+        <bodyName>base_link</bodyName>
+        <updateRateHZ>10.0</updateRateHZ>
+        <gaussianNoise>0.0</gaussianNoise>
+        <xyzOffset>0 0 0</xyzOffset>
+        <rpyOffset>0 0 0</rpyOffset>
+        <frameName>base_link</frameName>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
     </sensor>
   </gazebo>
 
