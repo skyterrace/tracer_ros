@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find tracer_gazebo_sim)/launch/tracer_house1_world.launch" />
+    <include file="$(find tracer_base)/launch/tracer_base_sim.launch" />
+    <!-- <include file="$(find tracer_bringup)/launch/tracer_teleop_keyboard.launch" /> -->
+</launch>
